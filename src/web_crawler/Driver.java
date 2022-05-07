@@ -8,15 +8,6 @@ public class Driver {
 	public static void main(String[] args) {
 		Crawler c1 = new Crawler();
 		
-		// Test run without using DownloadURL
-		/*
-		String page = Utility.downloadPage(c1.getSeedURL(), "./google.html");
-		ArrayList<URL> urls = Utility.getURLs(page); 
-		for(URL url:urls) {
-			System.out.println(url.toString());
-		}
-		System.out.println("Fize size is " + Utility.getFormattedSize("./google.html"));
-		*/
 	}
 
 }

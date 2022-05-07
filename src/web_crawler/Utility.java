@@ -95,4 +95,10 @@ public class Utility {
 		if (fileSize == -1) { return null; }
 		return String.format("%,d KB", fileSize / 1024);
 	}
+	
+	// return formatted String size in KB
+	public static String getFormattedSize(long fileSize) {
+		if (fileSize == -1) { return null; }
+		return String.format("%,d KB", fileSize / 1024);
+	}
 }

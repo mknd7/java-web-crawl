@@ -6,11 +6,13 @@ public class Crawler {
 	
 	private String id;
 	private String seedURL;
+	private int crawlDepth;
 	
-	private final int maxURLLinks = 200;
-	private final int maxTotal = 1000;
+	private static final int maxURLLinks = 200;
+	private static final int maxTotal = 1000;
 	
 	Crawler() {
+		this.crawlDepth = 2; // default depth
 		this.id = UUID.randomUUID().toString();
 		this.seedURL = "https://www.google.com";
 	}
@@ -22,6 +24,22 @@ public class Crawler {
 	
 	public String getSeedURL() {
 		return this.seedURL;
+	}
+	
+	public void setSeedURL(String seedURL) {
+		this.seedURL = seedURL;
+	}
+	
+	public void setCrawlDepth(int crawlDepth) {
+		if(crawlDepth > 4) {
+			System.err.println("Depth cannot be set greater than 4");
+			System.exit(-1);
+		}
+		this.crawlDepth = crawlDepth;
+	}
+	
+	public void crawl() {
+		
 	}
 
 }

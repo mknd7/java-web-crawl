@@ -5,5 +5,19 @@ import java.util.ArrayList;
 
 public class DownloadURL {
 	
+	private URL parent;
 	private ArrayList<URL> crawlResults;
+	
+	DownloadURL() {
+		this.parent = null;
+	}
+	
+	/*
+	String page = Utility.downloadPage(c1.getSeedURL(), "./google.html");
+	ArrayList<URL> urls = Utility.getURLs(page); 
+	for(URL url:urls) {
+		System.out.println(url.toString());
+	}
+	System.out.println("Fize size is " + Utility.getFormattedSize("./google.html"));
+	*/
 }
