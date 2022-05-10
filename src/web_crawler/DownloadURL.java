@@ -6,18 +6,21 @@ import java.util.ArrayList;
 public class DownloadURL {
 	
 	private URL parent;
+	private Crawler c;
 	private ArrayList<URL> crawlResults;
 	
-	DownloadURL() {
+	DownloadURL(Crawler c) {
 		this.parent = null;
+		this.c = c;
 	}
 	
-	/*
-	String page = Utility.downloadPage(c1.getSeedURL(), "./google.html");
-	ArrayList<URL> urls = Utility.getURLs(page); 
-	for(URL url:urls) {
-		System.out.println(url.toString());
+	public void download(String filePath) {
+		String page = Utility.downloadPage(this.c.getSeedURL(), filePath);
+		ArrayList<URL> urls = Utility.getURLs(page);
+		for(URL url:urls) {
+			System.out.println(url.toString());
+		}
+		System.out.println("Fize size is " + Utility.getFormattedSize(filePath));
 	}
-	System.out.println("Fize size is " + Utility.getFormattedSize("./google.html"));
-	*/
+
 }

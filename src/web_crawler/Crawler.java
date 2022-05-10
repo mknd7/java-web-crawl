@@ -39,7 +39,8 @@ public class Crawler {
 	}
 	
 	public void crawl() {
-		
+		DownloadURL dl = new DownloadURL(this);
+		dl.download("./google.html");
 	}
 
 }
