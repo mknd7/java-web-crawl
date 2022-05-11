@@ -1,5 +1,7 @@
 package web_crawler;
 
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class Crawler {
@@ -40,7 +42,8 @@ public class Crawler {
 	
 	public void crawl() {
 		DownloadURL dl = new DownloadURL(this);
-		dl.download("./google.html");
+		ArrayList<URL> nextdls = dl.download("./google.html");
+		
 	}
 
 }

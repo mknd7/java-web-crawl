@@ -2,6 +2,7 @@ package web_crawler;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.nio.file.*;
@@ -101,4 +102,5 @@ public class Utility {
 		if (fileSize == -1) { return null; }
 		return String.format("%,d KB", fileSize / 1024);
 	}
+	
 }
