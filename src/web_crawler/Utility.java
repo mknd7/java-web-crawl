@@ -11,12 +11,10 @@ import java.util.regex.*;
 // comprises of static helper functions
 public class Utility {
 	
-	public static String downloadPage(String pageURL, String filePath) {
-		URL url = null;
+	public static String downloadPage(URL url, String filePath) {
 		String line = null, page = null;
 		
 		try {
-			url = new URL(pageURL);
 			BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
 			BufferedWriter bw = new BufferedWriter(new FileWriter(filePath));
 			

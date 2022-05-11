@@ -5,29 +5,39 @@ import java.util.ArrayList;
 
 public class DownloadURL {
 	
-	private URL parent;
-	private Crawler crawlInitiator;
+	private URL url;
+	private String filePath;
+	
 	private ArrayList<URL> crawlResults;
+	private Crawler crawlInitiator;
 	
 	DownloadURL(Crawler crawlInitiator) {
-		this.parent = null;
-		this.crawlResults = new ArrayList<URL>();
 		this.crawlInitiator = crawlInitiator;
+		this.crawlResults = new ArrayList<URL>();
 	}
 	
-	public ArrayList<URL> download(String filePath) {
-		startDownload(filePath);
+	DownloadURL(Crawler crawlInitiator, URL url, String filePath) {
+		this(crawlInitiator);
+		init(url, filePath);
+	}
+	
+	public void init(URL url, String filePath) {
+		this.url = url;
+		this.filePath = filePath;
+	}
+	
+	public ArrayList<URL> download() {
+		crawlURL();
 		return this.getNextDownloadLinks();
 	}
 	
-	public void startDownload(String filePath) {
-		String page = Utility.downloadPage(this.crawlInitiator.getSeedURL(), filePath);
+	public void crawlURL() {
+		String page = Utility.downloadPage(url, filePath);
 		ArrayList<URL> urls = Utility.getURLs(page);
 		
 		if(!urls.isEmpty()) {
 			crawlResults.addAll(urls);
 		}
-		System.out.println("Fize size is " + Utility.getFormattedSize(filePath));
 	}
 	
 	public ArrayList<URL> getNextDownloadLinks() {
