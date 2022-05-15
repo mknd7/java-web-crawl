@@ -2,7 +2,8 @@ package web_crawler;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
 
 public class Crawler {
@@ -10,9 +11,10 @@ public class Crawler {
 	private String id;
 	private String seedURL;
 	private int crawlDepth;
-	
-	private ArrayList<URL> nextURLs;
+	 
 	private CrawledURL startURL;
+	private PageHierarchy p = new PageHierarchy();
+	private Set<URL> allLinks;
 	
 	private static final int maxURLLinks = 200;
 	private static final int maxTotal = 1000;
@@ -21,18 +23,12 @@ public class Crawler {
 		this.crawlDepth = 2; // default depth
 		this.id = UUID.randomUUID().toString();
 		this.seedURL = "https://www.google.com";
+		this.allLinks = new HashSet<URL>();
 	}
 	
 	Crawler(String seedURL) {
 		this();
 		this.seedURL = seedURL;
-	}
-	
-	// inner class for each crawled URL
-	public class CrawledURL {
-		private URL thisURL;
-		private CrawledURL parent;
-		private ArrayList<CrawledURL> urls;
 	}
 	
 	public URL getSeedURL() {
@@ -57,29 +53,29 @@ public class Crawler {
 		this.crawlDepth = crawlDepth;
 	}
 	
+	// first crawl starting with seed
 	public void startCrawl() {
-		DownloadURL seedDownload = new DownloadURL(this);
-		seedDownload.init(this.getSeedURL(), "./seed.html");
-		this.nextURLs = seedDownload.download();
+		this.startURL = new CrawledURL(this.getSeedURL(), null); 
+		crawl(this.startURL);
 	}
 	
-	public void crawl() {
-		startCrawl();
-		ArrayList<ArrayList<URL>> urlLists = new ArrayList<ArrayList<URL>>();
-		PageHierarchy p = new PageHierarchy();
+	public void crawl(CrawledURL curl) {
+		DownloadURL urlD = new DownloadURL(this);
+		urlD.init(curl.getURL(), p.getNextPageID() + ".html");
 		
-		for(URL url:this.nextURLs) {
-			System.out.println(url);
-			DownloadURL nextURL = new DownloadURL(this);
-			nextURL.init(url, p.getNextPageID() + ".html");
-			urlLists.add(nextURL.download());
-		}
+		if(allLinks.contains(curl.getURL())) { return; }
+		this.allLinks.add(curl.getURL());
 		
-		for(ArrayList<URL> list:urlLists) {
-			for(URL url:list) {
-				System.out.println(url);
+		// set children for URL
+		curl.setChildUrls(urlD.download());
+		if(this.crawlDepth > 0) {
+			this.crawlDepth -= 1;
+			for(CrawledURL childurl:curl.getChildUrls()) {
+				crawl(childurl);
 			}
+		} else {
+			this.startURL.printCrawlMap();
 		}
 	}
-
+	
 }

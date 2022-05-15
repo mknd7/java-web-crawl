@@ -27,11 +27,11 @@ public class DownloadURL {
 	}
 	
 	public ArrayList<URL> download() {
-		crawlURL();
+		scanPage();
 		return this.getNextDownloadLinks();
 	}
 	
-	public void crawlURL() {
+	public void scanPage() {
 		String page = Utility.downloadPage(url, filePath);
 		ArrayList<URL> urls = Utility.getURLs(page);
 		
