@@ -2,7 +2,6 @@ package web_crawler;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.nio.file.*;
@@ -31,9 +30,9 @@ public class Utility {
 			bw.close();
 			
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 		} catch (Exception e) {
 			System.out.println("Unexpected error while downloading page from URL");
 			e.printStackTrace();
@@ -42,10 +41,12 @@ public class Utility {
 		return page;
 	}
 	
+	// make parent directories if they do not exist
 	public static void prepareDirectories(String filePath) {
 		File myFile =  new File(filePath);
 		File parentDir = myFile.getParentFile();
 		if(!parentDir.exists()) {
+			prepareDirectories(parentDir.getPath());
 			parentDir.mkdirs();
 		}
 	}
@@ -54,22 +55,28 @@ public class Utility {
 		ArrayList<String> links = new ArrayList<String>();
 		ArrayList<URL> linkURLs = new ArrayList<URL>();
 		
+		// for responses like HTTP 500
+		if(page == null) {
+			return linkURLs;
+		}
+		
 		Pattern linkPattern = Pattern.compile("<a.+?\\R*href\\R*=\\R*[\"\']?([^\"\'>]+)[\"\']?", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
 		Matcher pageMatcher = linkPattern.matcher(page);
+		String link, currUrlString;
 		
 		while(pageMatcher.find()){
-		    String link = pageMatcher.group(1);
+		    link = pageMatcher.group(1);
 		    links.add(link);
-	    	String currUrlString = links.get(links.size() - 1);
+	    	currUrlString = links.get(links.size() - 1);
 	    	
 	    	// any local links without the protocol
-	    	if(currUrlString.indexOf("http") == -1 && currUrlString.indexOf("//") == 0) {
+	    	if (currUrlString.indexOf("//") == 0) {
 	    		currUrlString = "https:" + currUrlString;
-	    	} else if(currUrlString.indexOf("http") == -1) {
+	    	} else if (currUrlString.indexOf("http") == -1) {
 	    		continue;
 	    	}
 	    	
-		    try {
+	    	try {
 		    	// remove query params before adding to list
 		    	if(currUrlString.indexOf("?") != -1) {
 		    		currUrlString = currUrlString.substring(0, currUrlString.indexOf("?"));

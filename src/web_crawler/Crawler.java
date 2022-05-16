@@ -9,16 +9,25 @@ public class Crawler {
 	
 	private String id;
 	private String seedURL;
-	
 	private CrawledURL startURL;
-	private ArrayList<URL> allLinks;
 	
-	private static int crawlDepth = 3;
-	private static final int maxLinks = 1000;
+	private ArrayList<URL> allLinks;
+	private int crawlDepth;
+	
+	private static final int maxDepth = 3;
+	private static final int maxLinks = 500;
 	
 	Crawler(String seedURL) {
 		this.id = UUID.randomUUID().toString();
+		init(seedURL);
+	}
+	
+	// can be used to initialize same Crawler again
+	public void init(String seedURL) {
+		this.crawlDepth = maxDepth;
 		this.seedURL = seedURL;
+		this.startURL = new CrawledURL(this.getSeedURL(), null);
+		
 		this.allLinks = new ArrayList<URL>();
 		this.allLinks.add(this.getSeedURL());
 	}
@@ -38,14 +47,14 @@ public class Crawler {
 	}
 	
 	public void setCrawlDepth(int crawlDepth) {
-		if(crawlDepth > 4) {
+		if(crawlDepth > maxDepth) {
 			System.err.println("Depth cannot be set greater than 4");
 			System.exit(-1);
 		} else if (crawlDepth < 1) {
 			System.err.println("Depth cannot be set lesser than 1");
 			System.exit(-1);
 		}
-		Crawler.crawlDepth = crawlDepth;
+		this.crawlDepth = crawlDepth;
 	}
 	
 	public void printCrawlMap() {
@@ -65,26 +74,24 @@ public class Crawler {
 		children.removeAll(duplicates);
 	}
 	
-	public void crawl(CrawledURL curl) {
-		// first crawl (seed) started by passing null
-		if(curl == null) {
-			this.startURL = new CrawledURL(this.getSeedURL(), null); 
-			curl = this.startURL;
-		}
-		
+	public void crawl() {
+		crawl(this.startURL, this.crawlDepth);
+	}
+	
+	public void crawl(CrawledURL curl, int depth) {
+		// initialize download
 		DownloadURL urlD = new DownloadURL(this);
 		urlD.init(curl.getURL(), curl.getFilePath());
-		crawlDepth -= 1;
 		
-		// get child URLs and set for current URL
-		ArrayList<URL> children = urlD.download();
-		this.updateLinks(children);
-		curl.setChildUrls(children);
+		if(depth > 0) {
+			// get child URLs and store
+			ArrayList<URL> children = urlD.download();
+			this.updateLinks(children);
+			curl.setChildUrls(children);
 		
-		if(crawlDepth > 0) {
 			// recursively crawl child URLs
 			for(CrawledURL childurl:curl.getChildUrls()) {
-				crawl(childurl);
+				crawl(childurl, depth - 1);
 			}
 		}
 	}
