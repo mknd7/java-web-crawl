@@ -11,22 +11,16 @@ public class Crawler {
 	private String seedURL;
 	
 	private CrawledURL startURL;
-	private PageHierarchy p = new PageHierarchy();
 	private ArrayList<URL> allLinks;
 	
 	private static int crawlDepth = 3;
 	private static final int maxLinks = 1000;
 	
-	Crawler() {
+	Crawler(String seedURL) {
 		this.id = UUID.randomUUID().toString();
-		this.seedURL = "https://www.google.com"; // default seed
+		this.seedURL = seedURL;
 		this.allLinks = new ArrayList<URL>();
 		this.allLinks.add(this.getSeedURL());
-	}
-	
-	Crawler(String seedURL) {
-		this();
-		this.seedURL = seedURL;
 	}
 	
 	public URL getSeedURL() {
@@ -79,7 +73,7 @@ public class Crawler {
 		}
 		
 		DownloadURL urlD = new DownloadURL(this);
-		urlD.init(curl.getURL(), p.getNextPageID() + ".html");
+		urlD.init(curl.getURL(), curl.getFilePath());
 		crawlDepth -= 1;
 		
 		// get child URLs and set for current URL

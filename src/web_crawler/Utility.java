@@ -15,6 +15,7 @@ public class Utility {
 		String line = null, page = null;
 		
 		try {
+			prepareDirectories(filePath);
 			BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
 			BufferedWriter bw = new BufferedWriter(new FileWriter(filePath));
 			
@@ -39,6 +40,14 @@ public class Utility {
 		}
 		
 		return page;
+	}
+	
+	public static void prepareDirectories(String filePath) {
+		File myFile =  new File(filePath);
+		File parentDir = myFile.getParentFile();
+		if(!parentDir.exists()) {
+			parentDir.mkdirs();
+		}
 	}
 	
 	public static ArrayList<URL> getURLs(String page) {
@@ -78,6 +87,12 @@ public class Utility {
 	public static String[] getLines(String page) {
 		String[] lines = page.split("\\R+", -1);
 		return lines;
+	}
+	
+	// return a filename-safe String from URL
+	public static String getSanitizedURL(URL url) {
+		// only allow numbers, letters or underscore
+		return url.toString().replaceAll("\\W+", "");
 	}
 	
 	// return size in bytes, or -1 if not found

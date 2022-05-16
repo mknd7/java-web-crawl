@@ -6,6 +6,8 @@ import java.util.ArrayList;
 public class CrawledURL {
 	private URL currURL;
 	private CrawledURL parent;
+	private String filePath;
+	
 	private ArrayList<CrawledURL> childUrls;
 	private int depth;
 	
@@ -15,11 +17,8 @@ public class CrawledURL {
 		this.childUrls = new ArrayList<CrawledURL>();
 		
 		// set depth for crawled URL
-		if(this.parent == null) {
-			this.depth = 0;
-		} else {
-			this.depth = this.parent.depth + 1;
-		}
+		this.depth = (this.parent == null) ? 0 : this.parent.depth + 1;
+		this.filePath = (this.parent == null) ? "crawl/seed" : this.parent.filePath + "/" + Utility.getSanitizedURL(this.currURL);
 	}
 	
 	public URL getURL() {
@@ -38,6 +37,10 @@ public class CrawledURL {
 		for(URL url:urls) {
 			this.childUrls.add(new CrawledURL(url, this));
 		}
+	}
+	
+	public String getFilePath() {
+		return this.filePath + ".html";
 	}
 	
 	// print crawl map
