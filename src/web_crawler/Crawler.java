@@ -2,8 +2,7 @@ package web_crawler;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class Crawler {
@@ -11,10 +10,10 @@ public class Crawler {
 	private String id;
 	private String seedURL;
 	private int crawlDepth;
-	 
+	
 	private CrawledURL startURL;
 	private PageHierarchy p = new PageHierarchy();
-	private Set<URL> allLinks;
+	private ArrayList<URL> allLinks;
 	
 	private static final int maxURLLinks = 200;
 	private static final int maxTotal = 1000;
@@ -23,7 +22,12 @@ public class Crawler {
 		this.crawlDepth = 2; // default depth
 		this.id = UUID.randomUUID().toString();
 		this.seedURL = "https://www.google.com";
-		this.allLinks = new HashSet<URL>();
+		this.allLinks = new ArrayList<URL>();
+		try {
+			this.allLinks.add(new URL(this.seedURL));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	Crawler(String seedURL) {
@@ -53,28 +57,42 @@ public class Crawler {
 		this.crawlDepth = crawlDepth;
 	}
 	
-	// first crawl starting with seed
-	public void startCrawl() {
-		this.startURL = new CrawledURL(this.getSeedURL(), null); 
-		crawl(this.startURL);
+	public void printCrawlMap() {
+		this.startURL.printCrawlMap();
+	}
+	
+	public void removeDuplicates(ArrayList<URL> children) {
+		ArrayList<URL> duplicates = new ArrayList<URL>();
+		for(URL childurl:children) {
+			if(!allLinks.contains(childurl)) {
+				this.allLinks.add(childurl);
+			} else {
+				duplicates.add(childurl);
+			}
+		}
+		children.removeAll(duplicates);
 	}
 	
 	public void crawl(CrawledURL curl) {
+		// first crawl (seed) started by passing null
+		if(curl == null) {
+			this.startURL = new CrawledURL(this.getSeedURL(), null); 
+			curl = this.startURL;
+		}
+		
 		DownloadURL urlD = new DownloadURL(this);
 		urlD.init(curl.getURL(), p.getNextPageID() + ".html");
 		
-		if(allLinks.contains(curl.getURL())) { return; }
-		this.allLinks.add(curl.getURL());
+		// get child URLs, remove duplicates and set
+		ArrayList<URL> children = urlD.download();
+		this.removeDuplicates(children);
+		curl.setChildUrls(children);
 		
-		// set children for URL
-		curl.setChildUrls(urlD.download());
-		if(this.crawlDepth > 0) {
-			this.crawlDepth -= 1;
+		// check depth and recursively crawl children
+		if(--this.crawlDepth > 0) {
 			for(CrawledURL childurl:curl.getChildUrls()) {
 				crawl(childurl);
 			}
-		} else {
-			this.startURL.printCrawlMap();
 		}
 	}
 	

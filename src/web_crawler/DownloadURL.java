@@ -16,11 +16,6 @@ public class DownloadURL {
 		this.crawlResults = new ArrayList<URL>();
 	}
 	
-	DownloadURL(Crawler crawlInitiator, URL url, String filePath) {
-		this(crawlInitiator);
-		init(url, filePath);
-	}
-	
 	public void init(URL url, String filePath) {
 		this.url = url;
 		this.filePath = filePath;

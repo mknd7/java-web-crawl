@@ -51,20 +51,25 @@ public class Utility {
 		while(pageMatcher.find()){
 		    String link = pageMatcher.group(1);
 		    links.add(link);
-	    	String last = links.get(links.size() - 1);
+	    	String currUrlString = links.get(links.size() - 1);
 	    	
 	    	// any local links without the protocol
-	    	if(last.indexOf("http") == -1 && last.indexOf("//") == 0) {
-	    		last = "https:" + last;
-	    	} else if(last.indexOf("http") == -1) {
+	    	if(currUrlString.indexOf("http") == -1 && currUrlString.indexOf("//") == 0) {
+	    		currUrlString = "https:" + currUrlString;
+	    	} else if(currUrlString.indexOf("http") == -1) {
 	    		continue;
 	    	}
 	    	
-	    	// add URLs to list
 		    try {
-		    	linkURLs.add(new URL(last));
+		    	// remove query params before adding to list
+		    	int queryParamsPresent = currUrlString.indexOf("?");
+		    	if(queryParamsPresent != -1) {
+		    		currUrlString = currUrlString.substring(0, currUrlString.indexOf("?"));
+		    	}
+		    	URL currUrl = new URL(currUrlString);
+		    	linkURLs.add(currUrl);
 		    } catch(MalformedURLException e) {
-		    	e.printStackTrace();
+		    	// e.printStackTrace();
 		    }
 		}
 		

@@ -7,13 +7,13 @@ public class CrawledURL {
 	private URL currURL;
 	private CrawledURL parent;
 	private ArrayList<CrawledURL> childUrls;
-	private int recDepth;
+	
+	private static int recDepth = 0;
 	
 	CrawledURL(URL url, CrawledURL parent) {
 		this.currURL = url;
 		this.parent = parent;
 		this.childUrls = new ArrayList<CrawledURL>();
-		this.recDepth = 0;
 	}
 	
 	public URL getURL() {
@@ -34,15 +34,15 @@ public class CrawledURL {
 		}
 	}
 	
-	// print an entire crawl map given
+	// print crawl map
 	public void printCrawlMap() {
-		String leftPad = new String(new char[this.recDepth]).replace("\0", "  ");
-		System.out.println(leftPad + this.currURL);
-		this.recDepth++;
+		String leftPad = new String(new char[recDepth]).replace("\0", " > ");
+		System.out.println(leftPad + System.identityHashCode(this.currURL) + ": " + this.currURL);
 		
 		if(!this.childUrls.isEmpty()) {
-			for(CrawledURL url:this.childUrls) {
-				url.printCrawlMap();
+			recDepth += 1;
+			for(CrawledURL childurl:this.childUrls) {
+				childurl.printCrawlMap();
 			}
 		}
 	}
