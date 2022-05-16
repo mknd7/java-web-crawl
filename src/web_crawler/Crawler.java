@@ -89,7 +89,7 @@ public class Crawler {
 		curl.setChildUrls(children);
 		
 		// check depth and recursively crawl children
-		if(--this.crawlDepth > 0) {
+		if(this.crawlDepth-- > 0) {
 			for(CrawledURL childurl:curl.getChildUrls()) {
 				crawl(childurl);
 			}

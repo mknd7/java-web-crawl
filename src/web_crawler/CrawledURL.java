@@ -7,13 +7,19 @@ public class CrawledURL {
 	private URL currURL;
 	private CrawledURL parent;
 	private ArrayList<CrawledURL> childUrls;
-	
-	private static int recDepth = 0;
+	private int depth;
 	
 	CrawledURL(URL url, CrawledURL parent) {
 		this.currURL = url;
 		this.parent = parent;
 		this.childUrls = new ArrayList<CrawledURL>();
+		
+		// set depth for crawled URL
+		if(this.parent == null) {
+			this.depth = 0;
+		} else {
+			this.depth = this.parent.depth + 1;
+		}
 	}
 	
 	public URL getURL() {
@@ -36,11 +42,10 @@ public class CrawledURL {
 	
 	// print crawl map
 	public void printCrawlMap() {
-		String leftPad = new String(new char[recDepth]).replace("\0", " > ");
+		String leftPad = new String(new char[this.depth]).replace("\0", " > ");
 		System.out.println(leftPad + System.identityHashCode(this.currURL) + ": " + this.currURL);
 		
 		if(!this.childUrls.isEmpty()) {
-			recDepth += 1;
 			for(CrawledURL childurl:this.childUrls) {
 				childurl.printCrawlMap();
 			}

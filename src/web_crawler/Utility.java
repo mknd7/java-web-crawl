@@ -62,8 +62,7 @@ public class Utility {
 	    	
 		    try {
 		    	// remove query params before adding to list
-		    	int queryParamsPresent = currUrlString.indexOf("?");
-		    	if(queryParamsPresent != -1) {
+		    	if(currUrlString.indexOf("?") != -1) {
 		    		currUrlString = currUrlString.substring(0, currUrlString.indexOf("?"));
 		    	}
 		    	URL currUrl = new URL(currUrlString);
