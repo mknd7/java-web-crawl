@@ -46,7 +46,6 @@ public class Utility {
 		File myFile =  new File(filePath);
 		File parentDir = myFile.getParentFile();
 		if(!parentDir.exists()) {
-			prepareDirectories(parentDir.getPath());
 			parentDir.mkdirs();
 		}
 	}

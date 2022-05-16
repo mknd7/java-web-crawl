@@ -7,12 +7,9 @@ public class DownloadURL {
 	
 	private URL url;
 	private String filePath;
-	
 	private ArrayList<URL> scanResults;
-	private Crawler crawlInitiator;
 	
-	DownloadURL(Crawler crawlInitiator) {
-		this.crawlInitiator = crawlInitiator;
+	DownloadURL() {
 		this.scanResults = new ArrayList<URL>();
 	}
 	

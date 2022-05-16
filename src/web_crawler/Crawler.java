@@ -14,8 +14,9 @@ public class Crawler {
 	private ArrayList<URL> allLinks;
 	private int crawlDepth;
 	
-	private static final int maxDepth = 3;
+	private static final int maxDepth = 2;
 	private static final int maxLinks = 500;
+	// private static final int nThreads = 4;
 	
 	Crawler(String seedURL) {
 		this.id = UUID.randomUUID().toString();
@@ -75,12 +76,14 @@ public class Crawler {
 	}
 	
 	public void crawl() {
+		System.out.println("Crawler running...");
 		crawl(this.startURL, this.crawlDepth);
+		System.out.println("");
 	}
 	
 	public void crawl(CrawledURL curl, int depth) {
 		// initialize download
-		DownloadURL urlD = new DownloadURL(this);
+		DownloadURL urlD = new DownloadURL();
 		urlD.init(curl.getURL(), curl.getFilePath());
 		
 		if(depth > 0) {
