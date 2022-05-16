@@ -8,12 +8,12 @@ public class DownloadURL {
 	private URL url;
 	private String filePath;
 	
-	private ArrayList<URL> crawlResults;
+	private ArrayList<URL> scanResults;
 	private Crawler crawlInitiator;
 	
 	DownloadURL(Crawler crawlInitiator) {
 		this.crawlInitiator = crawlInitiator;
-		this.crawlResults = new ArrayList<URL>();
+		this.scanResults = new ArrayList<URL>();
 	}
 	
 	public void init(URL url, String filePath) {
@@ -31,12 +31,12 @@ public class DownloadURL {
 		ArrayList<URL> urls = Utility.getURLs(page);
 		
 		if(!urls.isEmpty()) {
-			crawlResults.addAll(urls);
+			scanResults.addAll(urls);
 		}
 	}
 	
 	public ArrayList<URL> getNextDownloadLinks() {
-		return this.crawlResults;
+		return this.scanResults;
 	}
 
 }

@@ -9,25 +9,19 @@ public class Crawler {
 	
 	private String id;
 	private String seedURL;
-	private int crawlDepth;
 	
 	private CrawledURL startURL;
 	private PageHierarchy p = new PageHierarchy();
 	private ArrayList<URL> allLinks;
 	
-	private static final int maxURLLinks = 200;
-	private static final int maxTotal = 1000;
+	private static int crawlDepth = 3;
+	private static final int maxLinks = 1000;
 	
 	Crawler() {
-		this.crawlDepth = 2; // default depth
 		this.id = UUID.randomUUID().toString();
-		this.seedURL = "https://www.google.com";
+		this.seedURL = "https://www.google.com"; // default seed
 		this.allLinks = new ArrayList<URL>();
-		try {
-			this.allLinks.add(new URL(this.seedURL));
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
+		this.allLinks.add(this.getSeedURL());
 	}
 	
 	Crawler(String seedURL) {
@@ -53,15 +47,19 @@ public class Crawler {
 		if(crawlDepth > 4) {
 			System.err.println("Depth cannot be set greater than 4");
 			System.exit(-1);
+		} else if (crawlDepth < 1) {
+			System.err.println("Depth cannot be set lesser than 1");
+			System.exit(-1);
 		}
-		this.crawlDepth = crawlDepth;
+		Crawler.crawlDepth = crawlDepth;
 	}
 	
 	public void printCrawlMap() {
 		this.startURL.printCrawlMap();
 	}
 	
-	public void removeDuplicates(ArrayList<URL> children) {
+	// updates list of all links and removes duplicates
+	public void updateLinks(ArrayList<URL> children) {
 		ArrayList<URL> duplicates = new ArrayList<URL>();
 		for(URL childurl:children) {
 			if(!allLinks.contains(childurl)) {
@@ -82,14 +80,15 @@ public class Crawler {
 		
 		DownloadURL urlD = new DownloadURL(this);
 		urlD.init(curl.getURL(), p.getNextPageID() + ".html");
+		crawlDepth -= 1;
 		
-		// get child URLs, remove duplicates and set
+		// get child URLs and set for current URL
 		ArrayList<URL> children = urlD.download();
-		this.removeDuplicates(children);
+		this.updateLinks(children);
 		curl.setChildUrls(children);
 		
-		// check depth and recursively crawl children
-		if(this.crawlDepth-- > 0) {
+		if(crawlDepth > 0) {
+			// recursively crawl child URLs
 			for(CrawledURL childurl:curl.getChildUrls()) {
 				crawl(childurl);
 			}

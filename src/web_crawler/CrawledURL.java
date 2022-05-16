@@ -43,7 +43,7 @@ public class CrawledURL {
 	// print crawl map
 	public void printCrawlMap() {
 		String leftPad = new String(new char[this.depth]).replace("\0", " > ");
-		System.out.println(leftPad + System.identityHashCode(this.currURL) + ": " + this.currURL);
+		System.out.println(leftPad + this.currURL); // System.identityHashCode(this.currURL) can be used for checking if unique
 		
 		if(!this.childUrls.isEmpty()) {
 			for(CrawledURL childurl:this.childUrls) {
