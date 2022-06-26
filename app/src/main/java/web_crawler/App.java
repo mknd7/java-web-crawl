@@ -1,6 +1,6 @@
 package web_crawler;
 
-public class Driver {
+public class App {
 
 	public static void main(String[] args) {
 		Crawler c1 = new Crawler("https://www.google.com");
