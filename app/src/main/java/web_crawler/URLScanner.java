@@ -2,16 +2,17 @@ package web_crawler;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class URLScanner {
 
 	private URL url;
 	private String filePath;
-	private ArrayList<URL> scanResults;
+	private Set<URL> scanResults;
 
 	URLScanner(URL url, String filePath) {
-		this.scanResults = new ArrayList<URL>();
+		this.scanResults = new HashSet<URL>();
 		this.url = url;
 		this.filePath = filePath;
 	}
@@ -20,8 +21,8 @@ public class URLScanner {
 		return Utility.downloadPage(url, filePath);
 	}
 
-	public ArrayList<URL> scanCurrPageOutlinks(String currPage) {
-		ArrayList<URL> urls = Utility.getURLs(currPage);
+	public Set<URL> scanCurrPageOutlinks(String currPage) {
+		Set<URL> urls = Utility.getURLs(currPage);
 
 		if (!urls.isEmpty()) {
 			this.scanResults.addAll(urls);
@@ -29,7 +30,7 @@ public class URLScanner {
 		return this.getPageOutlinks();
 	}
 
-	public ArrayList<URL> getPageOutlinks() {
+	public Set<URL> getPageOutlinks() {
 		return this.scanResults;
 	}
 

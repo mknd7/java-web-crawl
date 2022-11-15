@@ -2,9 +2,11 @@ package web_crawler;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class Crawler {
@@ -13,7 +15,7 @@ public class Crawler {
 	private String seedURL;
 	private CrawledURL startURL;
 
-	private HashMap<String, URLPage> crawlDict;
+	private HashMap<String, URLMetadata> crawlDict;
 	private int crawlDepth;
 
 	private static final int maxDepth = 2;
@@ -30,27 +32,28 @@ public class Crawler {
 		this.crawlDepth = maxDepth;
 		this.seedURL = seedURL;
 		this.startURL = new CrawledURL(this.getSeedURL(), null);
-		this.crawlDict = new HashMap<String, URLPage>();
+		this.crawlDict = new HashMap<String, URLMetadata>();
 	}
 
-	public void printCrawlMap() {
-		this.startURL.printCrawlMap();
+	public void printCrawlMap(Boolean withMetadata) {
+		this.startURL.printCrawlMap(withMetadata);
 	}
 
 	public void printCrawlMetadata() {
-		for (Map.Entry<String, URLPage> entry : crawlDict.entrySet()) {
+		for (Map.Entry<String, URLMetadata> entry : crawlDict.entrySet()) {
 			System.out.println(entry.getValue().getMetadata());
 		}
 	}
 
 	public URL getSeedURL() {
-		URL seedU = null;
+		URL seedURL = null;
 		try {
-			seedU = new URL(this.seedURL);
+			seedURL = new URL(this.seedURL);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
+			System.exit(-1);
 		}
-		return seedU;
+		return seedURL;
 	}
 
 	public void setSeedURL(String seedURL) {
@@ -68,62 +71,72 @@ public class Crawler {
 		this.crawlDepth = crawlDepth;
 	}
 
-	// removes duplicates from next-to-crawl list
-	public void removeDuplicates(ArrayList<URL> children) {
-		ArrayList<URL> duplicates = new ArrayList<URL>();
+	public void crawl() {
+		System.out.println("Crawler running...");
+		crawl(this.startURL, Integer.valueOf(this.crawlDepth));
+		System.out.println("");
+	}
+
+	public void crawl(CrawledURL seed, Integer maxDepth) {
+		ArrayDeque<Utility.Pair<CrawledURL, Integer>> nextToCrawl = new ArrayDeque<Utility.Pair<CrawledURL, Integer>>();
+		nextToCrawl.offer(new Utility.Pair<CrawledURL, Integer>(seed, maxDepth));
+
+		while (!nextToCrawl.isEmpty()) {
+			Utility.Pair<CrawledURL, Integer> urlWithDepthPair = nextToCrawl.poll();
+			CrawledURL curl = urlWithDepthPair.fst;
+			int depth = urlWithDepthPair.snd.intValue();
+
+			// initialize scanner and download current page
+			URLScanner currUrlScanner = new URLScanner(curl.getURL(), curl.getFilePath());
+			String currPageContent = null;
+			URLMetadata currURL = null;
+
+			try {
+				currPageContent = currUrlScanner.downloadCurrPage();
+				currURL = URLMetadata.createMetadataObject(crawlDict, this.getSeedURL().toString(), curl.toString());
+			} catch (MalformedURLException e) {
+				System.out.println("Skipping crawl for malformed URL " + curl.toString());
+				return;
+			}
+
+			// add and store metadata for current page
+			currURL.setPageFileSize(Utility.getFormattedSize(curl.getFilePath()));
+			currURL.setNumInlinks(currURL.getNumInlinks() + 1);
+			crawlDict.put(curl.toString(), currURL);
+			curl.setUrlMetadata(currURL);
+
+			// return if crawl depth is reached
+			if (depth == 0) {
+				continue;
+			}
+
+			// scan for outlinks
+			Set<URL> children = currUrlScanner.scanCurrPageOutlinks(currPageContent);
+			currURL.setNumOutlinks(children.size());
+			currURL.setPageCrawled();
+
+			// remove already scanned URLs before subsequent crawls
+			this.removeDuplicates(children);
+			curl.setChildUrls(children);
+
+			// add all child URLs to queue
+			for (CrawledURL childurl : curl.getChildUrls()) {
+				nextToCrawl.offer(new Utility.Pair<CrawledURL, Integer>(childurl, Integer.valueOf(depth - 1)));
+			}
+		}
+	}
+
+	// removes links already present in crawlDict from next-to-crawl list
+	public void removeDuplicates(Set<URL> children) {
+		Set<URL> duplicates = new HashSet<URL>();
 		for (URL childurl : children) {
 			if (crawlDict.containsKey(childurl.toString())) {
-				URLPage urlPage = crawlDict.get(childurl.toString());
+				URLMetadata urlPage = crawlDict.get(childurl.toString());
 				urlPage.setNumInlinks(urlPage.getNumInlinks() + 1);
 				duplicates.add(childurl);
 			}
 		}
 		children.removeAll(duplicates);
-	}
-
-	public void crawl() {
-		System.out.println("Crawler running...");
-		crawl(this.startURL, this.crawlDepth);
-		System.out.println("");
-	}
-
-	public void crawl(CrawledURL curl, int depth) {
-		// initialize scanner and download current page
-		URLScanner currUrlScanner = new URLScanner(curl.getURL(), curl.getFilePath());
-		String currPageContent = null;
-		URLPage currURL = null;
-
-		try {
-			currPageContent = currUrlScanner.downloadCurrPage();
-			currURL = URLPage.createMetadataObject(crawlDict, this.getSeedURL().toString(), curl.toString());
-		} catch (MalformedURLException e) {
-			System.out.println("Skipping crawl for malformed URL " + curl.toString());
-			return;
-		}
-
-		// add and store metadata for current page
-		currURL.setPageFileSize(Utility.getFileSizeKB(curl.getFilePath()));
-		currURL.setNumInlinks(currURL.getNumInlinks() + 1);
-		crawlDict.put(curl.toString(), currURL);
-
-		// return if crawl depth is reached
-		if (depth == 0) {
-			return;
-		}
-
-		// scan for outlinks
-		ArrayList<URL> children = currUrlScanner.scanCurrPageOutlinks(currPageContent);
-		currURL.setNumOutlinks(children.size());
-		currURL.setPageCrawled();
-
-		// remove already scanned URLs before subsequent crawls
-		this.removeDuplicates(children);
-		curl.setChildUrls(children);
-
-		// recursively crawl child URLs
-		for (CrawledURL childurl : curl.getChildUrls()) {
-			crawl(childurl, depth - 1);
-		}
 	}
 
 }

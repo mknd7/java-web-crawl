@@ -1,7 +1,8 @@
 package web_crawler;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.nio.file.*;
@@ -9,6 +10,16 @@ import java.util.regex.*;
 
 // comprises static helper functions
 public class Utility {
+
+	public static class Pair<T1, T2> {
+		public final T1 fst;
+		public final T2 snd;
+
+		public Pair(T1 fst, T2 snd) {
+			this.fst = fst;
+			this.snd = snd;
+		}
+	}
 
 	public static String downloadPage(URL url, String filePath) throws MalformedURLException {
 		String line = null, page = null;
@@ -48,9 +59,9 @@ public class Utility {
 		}
 	}
 
-	public static ArrayList<URL> getURLs(String page) {
-		ArrayList<String> links = new ArrayList<String>();
-		ArrayList<URL> linkURLs = new ArrayList<URL>();
+	public static Set<URL> getURLs(String page) {
+		Set<String> links = new HashSet<String>();
+		Set<URL> linkURLs = new HashSet<URL>();
 
 		// for responses like HTTP 500
 		if (page == null) {
@@ -65,7 +76,7 @@ public class Utility {
 		while (pageMatcher.find()) {
 			link = pageMatcher.group(1);
 			links.add(link);
-			currUrlString = links.get(links.size() - 1);
+			currUrlString = new String(link);
 
 			// any local links without the protocol
 			if (currUrlString.indexOf("//") == 0) {
@@ -112,17 +123,13 @@ public class Utility {
 		return size;
 	}
 
-	public static long getFileSizeKB(String filePath) {
-		return getFileSize(filePath) / 1024;
-	}
-
 	// get size and return formatted String size in KB
 	public static String getFormattedSize(String filePath) {
 		long fileSize = getFileSize(filePath);
 		if (fileSize == -1) {
 			return null;
 		}
-		return String.format("%,d KB", fileSize / 1024);
+		return String.format("%.2f KB", fileSize / 1024.0);
 	}
 
 	// return formatted String size in KB
@@ -130,7 +137,7 @@ public class Utility {
 		if (fileSize == -1) {
 			return null;
 		}
-		return String.format("%,d KB", fileSize / 1024);
+		return String.format("%.2f KB", fileSize / 1024.0);
 	}
 
 }
