@@ -6,13 +6,13 @@ This is a web crawler initially started as part of my university course project.
 2. Start crawling by invoking the `c.crawl()` method.
 3. `c.crawl()` recursively discovers pages and downloads them to the `/crawl` directory.
 4. View the resulting crawl using the `c.printCrawlMap()` method.
-5. View metadata for all URLs crawled using the `c.printCrawlMetadata()` method.
 
 ### Features
 
 - Easy to use with modular components
 - Can customize storage directory for crawled webpages
 - Each `CrawledURL` stores its parent and children URLs (bidirectional links)
+- Each `CrawledURL` stores associated metadata (e.g. number of outlinks)
 - Multiple `Crawler` objects can be used together to crawl different websites
 
 ### TODO

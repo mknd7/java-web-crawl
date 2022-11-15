@@ -9,10 +9,8 @@ public class URLScanner {
 
 	private URL url;
 	private String filePath;
-	private Set<URL> scanResults;
 
 	URLScanner(URL url, String filePath) {
-		this.scanResults = new HashSet<URL>();
 		this.url = url;
 		this.filePath = filePath;
 	}
@@ -22,16 +20,13 @@ public class URLScanner {
 	}
 
 	public Set<URL> scanCurrPageOutlinks(String currPage) {
+		Set<URL> scanResults = new HashSet<URL>();
 		Set<URL> urls = Utility.getURLs(currPage);
 
 		if (!urls.isEmpty()) {
-			this.scanResults.addAll(urls);
+			scanResults.addAll(urls);
 		}
-		return this.getPageOutlinks();
-	}
-
-	public Set<URL> getPageOutlinks() {
-		return this.scanResults;
+		return scanResults;
 	}
 
 }

@@ -73,18 +73,18 @@ public class Crawler {
 
 	public void crawl() {
 		System.out.println("Crawler running...");
-		crawl(this.startURL, Integer.valueOf(this.crawlDepth));
+		crawl(this.crawlDepth);
 		System.out.println("");
 	}
 
-	public void crawl(CrawledURL seed, Integer maxDepth) {
-		ArrayDeque<Utility.Pair<CrawledURL, Integer>> nextToCrawl = new ArrayDeque<Utility.Pair<CrawledURL, Integer>>();
-		nextToCrawl.offer(new Utility.Pair<CrawledURL, Integer>(seed, maxDepth));
+	public void crawl(int maxDepth) {
+		ArrayDeque<Utility.Pair<CrawledURL, Integer>> nextToCrawl = new ArrayDeque<>();
+		nextToCrawl.offer(new Utility.Pair<CrawledURL, Integer>(this.startURL, maxDepth));
 
 		while (!nextToCrawl.isEmpty()) {
 			Utility.Pair<CrawledURL, Integer> urlWithDepthPair = nextToCrawl.poll();
 			CrawledURL curl = urlWithDepthPair.fst;
-			int depth = urlWithDepthPair.snd.intValue();
+			int depth = urlWithDepthPair.snd;
 
 			// initialize scanner and download current page
 			URLScanner currUrlScanner = new URLScanner(curl.getURL(), curl.getFilePath());
@@ -96,7 +96,7 @@ public class Crawler {
 				currURL = URLMetadata.createMetadataObject(crawlDict, this.getSeedURL().toString(), curl.toString());
 			} catch (MalformedURLException e) {
 				System.out.println("Skipping crawl for malformed URL " + curl.toString());
-				return;
+				continue;
 			}
 
 			// add and store metadata for current page
@@ -105,23 +105,21 @@ public class Crawler {
 			crawlDict.put(curl.toString(), currURL);
 			curl.setUrlMetadata(currURL);
 
-			// return if crawl depth is reached
-			if (depth == 0) {
-				continue;
-			}
+			// continue crawl only if not leaf URL
+			if (depth > 0) {
+				// scan for outlinks
+				Set<URL> children = currUrlScanner.scanCurrPageOutlinks(currPageContent);
+				currURL.setNumOutlinks(children.size());
+				currURL.setPageCrawled();
 
-			// scan for outlinks
-			Set<URL> children = currUrlScanner.scanCurrPageOutlinks(currPageContent);
-			currURL.setNumOutlinks(children.size());
-			currURL.setPageCrawled();
+				// remove already scanned URLs before subsequent crawls
+				this.removeDuplicates(children);
+				curl.setChildUrls(children);
 
-			// remove already scanned URLs before subsequent crawls
-			this.removeDuplicates(children);
-			curl.setChildUrls(children);
-
-			// add all child URLs to queue
-			for (CrawledURL childurl : curl.getChildUrls()) {
-				nextToCrawl.offer(new Utility.Pair<CrawledURL, Integer>(childurl, Integer.valueOf(depth - 1)));
+				// add all child URLs to queue
+				for (CrawledURL childurl : curl.getChildUrls()) {
+					nextToCrawl.offer(new Utility.Pair<CrawledURL, Integer>(childurl, depth - 1));
+				}
 			}
 		}
 	}

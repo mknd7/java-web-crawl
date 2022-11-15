@@ -5,8 +5,7 @@ import java.net.URL;
 import java.util.HashMap;
 
 /*
- * A metadata class for every URL (page),
- * useful for having a metadata dict of URLs
+ * A metadata class for every URL (page)
  */
 public class URLMetadata {
 

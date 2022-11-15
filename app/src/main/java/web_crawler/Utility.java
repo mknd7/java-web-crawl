@@ -76,7 +76,7 @@ public class Utility {
 		while (pageMatcher.find()) {
 			link = pageMatcher.group(1);
 			links.add(link);
-			currUrlString = new String(link);
+			currUrlString = link;
 
 			// any local links without the protocol
 			if (currUrlString.indexOf("//") == 0) {
@@ -86,7 +86,7 @@ public class Utility {
 			}
 
 			try {
-				// remove query params before adding to list
+				// remove query params before adding to set
 				if (currUrlString.indexOf("?") != -1) {
 					currUrlString = currUrlString.substring(0, currUrlString.indexOf("?"));
 				}
